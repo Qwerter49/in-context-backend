@@ -13,6 +13,7 @@ io.on('connection', (socket) => {
   console.log('Client connected');
   socket.on("message", message => {
       console.log("Someone sent a message!", message)
+      socket.emit("message", message)
   })
   socket.on('disconnect', () => console.log('Client disconnected'));
 });
