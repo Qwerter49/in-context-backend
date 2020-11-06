@@ -74,7 +74,7 @@ app.get("/notifications", (request, response) => {
 })
 
 app.post("/messages", (request, response) => {
-    console.log(request.body)
+    console.log(request)
 })
 
 app.listen(PORT, () => {
