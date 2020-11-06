@@ -13,7 +13,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.17.1",
-    "socket.io": "^2.3.0"
+    "knex": "^0.21.12",
+    "objection": "^2.2.3",
+    "pg": "^8.4.2",
+    "sqlite3": "^5.0.0"
   }
 }
