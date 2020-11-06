@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors')
 const knex = require("knex")
 const config = require("./knexfile").development
-
+const bodyParser = require("body-parser")
 const { Model } = require("objection")
 
 const app = express()
@@ -11,6 +11,7 @@ const PORT = process.env.PORT || 3000;
 Model.knex(database)
 
 app.use(cors())
+app.use(bodyParser.json())
 
 class Message extends Model {
     static tableName = "message"
