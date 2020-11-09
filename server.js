@@ -54,7 +54,7 @@ app.get("/users", (request, response) => {
         })
 })
 
-app.get("/shared-messages", async (request, response) => {
+app.post("/shared-messages", async (request, response) => {
     const { email } = request.body
     const user = await User.query()
         .where('email', email)
@@ -64,7 +64,7 @@ app.get("/shared-messages", async (request, response) => {
     const sites = await Site.query()
         .withGraphFetched('highlight')
         .where('user_id', userID)
-        .then(notifications => response.json({ notifications }) )
+        .then(notifications => response.json( notifications ) )
     
         // console.log(notifications)
 })
