@@ -2,8 +2,9 @@ const express = require('express');
 const cors = require('cors')
 const knex = require("knex")
 const config = require("./knexfile").development
-
-const { Model } = require("objection")
+const bodyParser = require("body-parser")
+const { Model } = require("objection");
+const { response } = require('express');
 
 const app = express()
 const database = knex(config)
@@ -11,56 +12,51 @@ const PORT = process.env.PORT || 3000;
 Model.knex(database)
 
 app.use(cors())
+app.use(bodyParser.json())
 
-class Message extends Model {
-    static tableName = "message"
+class Highlight extends Model {
+    static tableName = "highlight"
+    // static relationMappings = {
+    //     site: {
+    //         relation: Model.BelongsToOneRelation,
+    //         modelClass: Site,
+    //         join: {
+    //             from: 'highlight.site_id',
+    //             to: 'site.id'
+    //         }
+    //     } 
+    // }
+}
+class Site extends Model {
+    static tableName = "site"
+    static relationMappings = {
+        highlight: {
+            relation: Model.HasManyRelation,
+            modelClass: Highlight,
+            join: {
+                from: 'site.id',
+                to: "highlight.site_id"
+            }
+        }
+    }
 }
 
 class User extends Model {
     static tableName = "user"
     static relationMappings = {
-        message: {
-            relation: Model.ManyToManyRelation,
-            modelClass: Message,
+        site: {
+            relation: Model.HasManyRelation,
+            modelClass: Site,
             join: {
                 from: 'user.id',
-                through: {
-                    from: "users-message.user_id",
-                    to: "users-message.message_id"
-                },
-                to: "message.id"
-            }
-        }
-    }
-}
-
-class Users_message extends Model {
-    static tableName = 'users-sessions'
-
-    static relationMappings = {
-        user: {
-            relation: Model.BelongsToOneRelation,
-            modelClass: User,
-            join: {
-                from: 'users-message.user_id',
-                to: 'user.id'
-            }
-        }
-    }
-    static relationMappings = {
-        message: {
-            relation: Model.BelongsToOneRelation,
-            modelClass: Message,
-            join: {
-                from: 'users-message.message_id',
-                to: 'message.id'
+                to: "site.user_id"
             }
         }
     }
 }
 
 app.get("/users", (request, response) => {
-    User.query().withGraphFetched('message')
+    User.query().withGraphFetched('site.highlight')
         .then(users => {
             response.json({ users })
         }).catch(error => {
@@ -68,13 +64,37 @@ app.get("/users", (request, response) => {
         })
 })
 
-app.get("/notifications", (request, response) => {
-    // use to receive any new messages for a user
-    // request will have user
+app.get("/shared-messages", async (request, response) => {
+    const { email } = request.body
+    const user = await User.query()
+        .where('email', email)
+        .withGraphFetched('message')
 })
 
-app.post("/messages", (request, response) => {
-    console.log(response)
+app.post("/send-site", async (request, response) => {
+    const { from, to, data } = request.body
+    const url = Object.keys(data)[0]
+    const highlight = data[url]
+    // console.log(highlight)
+    // console.log({from: from})
+    // console.log({to: to})
+    // console.log({data: JSON.stringify(data)})
+    // console.log({url:Object.keys(data)[0]})
+
+    const user = await User.query()
+        .where("email", to)
+    const new_message = await Site.query()
+        .withGraphFetched('highlight')
+        .insertGraph({
+            id: "2",
+            user_id: user[0].id,
+            from_user: from,
+            url: url,
+            read: false,
+            highlight: highlight
+        })
+        // console.log(new_message)
+    
 })
 
 app.listen(PORT, () => {
