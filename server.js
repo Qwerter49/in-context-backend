@@ -58,7 +58,15 @@ app.get("/shared-messages", async (request, response) => {
     const { email } = request.body
     const user = await User.query()
         .where('email', email)
-        .withGraphFetched('message')
+        .withGraphFetched('site')
+    const userID = user[0].id
+    
+    const sites = await Site.query()
+        .withGraphFetched('highlight')
+        .where('user_id', userID)
+        .then(notifications => response.json({ notifications }) )
+    
+        // console.log(notifications)
 })
 
 app.post("/send-site", async (request, response) => {
