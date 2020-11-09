@@ -16,16 +16,6 @@ app.use(bodyParser.json())
 
 class Highlight extends Model {
     static tableName = "highlight"
-    // static relationMappings = {
-    //     site: {
-    //         relation: Model.BelongsToOneRelation,
-    //         modelClass: Site,
-    //         join: {
-    //             from: 'highlight.site_id',
-    //             to: 'site.id'
-    //         }
-    //     } 
-    // }
 }
 class Site extends Model {
     static tableName = "site"
@@ -75,25 +65,18 @@ app.post("/send-site", async (request, response) => {
     const { from, to, data } = request.body
     const url = Object.keys(data)[0]
     const highlight = data[url]
-    // console.log(highlight)
-    // console.log({from: from})
-    // console.log({to: to})
-    // console.log({data: JSON.stringify(data)})
-    // console.log({url:Object.keys(data)[0]})
 
     const user = await User.query()
         .where("email", to)
     const new_message = await Site.query()
         .withGraphFetched('highlight')
         .insertGraph({
-            id: "2",
             user_id: user[0].id,
             from_user: from,
             url: url,
             read: false,
             highlight: highlight
         })
-        // console.log(new_message)
     
 })
 

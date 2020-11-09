@@ -1,12 +1,12 @@
 
 exports.up = async knex => {
     await knex.schema.createTable("user", table => {
-        table.integer("id")
+        table.increments()
         table.string("email")
     })
 
     await knex.schema.createTable("site", table => {
-        table.integer("id")
+        table.increments()
         table.integer("user_id").references("id").inTable("user")
         table.string("from_user")
         table.string("url")
@@ -14,7 +14,7 @@ exports.up = async knex => {
     })
 
     await knex.schema.createTable("highlight", table => {
-        table.integer("id")
+        table.increments()
         table.integer("site_id").references("id").inTable("site")
         table.string("parentTag")
         table.string("text")
