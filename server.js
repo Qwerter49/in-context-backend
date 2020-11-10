@@ -5,6 +5,7 @@ const config = require("./knexfile").development
 const bodyParser = require("body-parser")
 const { Model } = require("objection");
 const { response } = require('express');
+const e = require('express');
 
 const app = express()
 const database = knex(config)
@@ -54,6 +55,36 @@ app.get("/users", (request, response) => {
         })
 })
 
+app.get("/highlights", (request, response) => {
+    Highlight.query()
+        .then(highlights => {
+            response.json({ highlights })
+        }).catch(error => {
+            console.error(error.message)
+        })
+})
+
+app.get("/sites", (request, response) => {
+    Site.query()
+        .then(sites => {
+            response.json({ sites })
+        }).catch(error => {
+            console.error(error.message)
+        })
+})
+
+app.delete("/delete-notification", async (request, response) => {
+    const { user_id, url } = request.body
+    
+    const siteToDelete = await Site.query()
+        .withGraphFetched('highlight')
+        .delete()
+        .where('user_id', user_id)
+        .where('url', url)
+
+    response.json(siteToDelete)
+})
+
 app.post("/shared-messages", async (request, response) => {
     const { email } = request.body
     const user = await User.query()
@@ -65,17 +96,31 @@ app.post("/shared-messages", async (request, response) => {
         .withGraphFetched('highlight')
         .where('user_id', userID)
         .then(notifications => response.json( notifications ) )
-    
-        // console.log(notifications)
 })
 
 app.post("/send-site", async (request, response) => {
     const { from, to, data } = request.body
     const url = Object.keys(data)[0]
     const highlight = data[url]
-
+    
     const user = await User.query()
         .where("email", to)
+
+    if(user.length === 0 ){
+        const newUser = await User.query()
+            .withGraphFetched('site.highlight')
+            .insertGraph({
+                email: to,
+                site: [
+                    {
+                        from_user: from,
+                        url: url,
+                        read: false,
+                        highlight: highlight
+                    }
+                ]
+            })
+    } else {
     const new_message = await Site.query()
         .withGraphFetched('highlight')
         .insertGraph({
@@ -85,7 +130,7 @@ app.post("/send-site", async (request, response) => {
             read: false,
             highlight: highlight
         })
-    
+    }
 })
 
 app.listen(PORT, () => {

@@ -15,7 +15,7 @@ exports.up = async knex => {
 
     await knex.schema.createTable("highlight", table => {
         table.increments()
-        table.integer("site_id").references("id").inTable("site")
+        table.integer("site_id").references("id").inTable("site").onDelete('cascade')
         table.string("parentTag")
         table.string("text")
     })
