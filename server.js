@@ -77,7 +77,7 @@ app.delete("/delete-notification", async (request, response) => {
     const { user_id, url } = request.body
     
     const siteToDelete = await Site.query()
-        .withGraphFetched('highlight')
+        // .withGraphFetched('highlight')
         .delete()
         .where('user_id', user_id)
         .where('url', url)
