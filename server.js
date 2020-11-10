@@ -75,14 +75,15 @@ app.get("/sites", (request, response) => {
 
 app.delete("/delete-notification", async (request, response) => {
     const { user_id, url } = request.body
-    
-    const siteToDelete = await Site.query()
-        // .withGraphFetched('highlight')
-        .delete()
-        .where('user_id', user_id)
-        .where('url', url)
+    console.log(user_id)
+    console.log(url)
+    // const siteToDelete = await Site.query()
+    //     .withGraphFetched('highlight')
+    //     .delete()
+    //     .where('user_id', user_id)
+    //     .where('url', url)
 
-    response.json(siteToDelete)
+    // response.json(siteToDelete)
 })
 
 app.post("/shared-messages", async (request, response) => {
