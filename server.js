@@ -75,6 +75,7 @@ app.get("/sites", (request, response) => {
 
 app.delete("/delete-notification", async (request, response) => {
     const { user_id, url } = request.body
+    console.log(request.body)
     console.log(user_id)
     console.log(url)
     // const siteToDelete = await Site.query()
